@@ -3,30 +3,59 @@
 #include <WiFiClient.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "MakerSpace_2.4G";
-const char* password = "ntueesaad";
+extern "C" {
+#include "user_interface.h"
+#include "wpa2_enterprise.h"
+}
 
-//Your Domain name with URL path or IP address with path
 const char* serverName = "http://140.112.174.222:1484/wind/update";
-
 unsigned long lastTime = 0;
 unsigned long timerDelay = 5000;
 int id = 1;
 
-void setup() {
-  Serial.begin(115200);
+// WiFi
+static const char* ssid = "ntu_peap";
+static const char* username = "b08901181";
+static const char* password = "QWer1234";
 
-  WiFi.begin(ssid, password);
-  Serial.println("Connecting");
-  while(WiFi.status() != WL_CONNECTED) {
-    delay(500);
+void setupWiFi() {
+  // WPA2 Connection starts here
+  // Setting ESP into STATION mode only (no AP mode or dual mode)
+
+    wifi_set_opmode(STATION_MODE);
+
+    struct station_config wifi_config;
+    memset(&wifi_config, 0, sizeof(wifi_config));
+    strcpy((char*)wifi_config.ssid, ssid);
+   
+    wifi_station_set_config(&wifi_config);
+   
+    wifi_station_clear_cert_key();
+    wifi_station_clear_enterprise_ca_cert();
+    wifi_station_set_wpa2_enterprise_auth(1);
+    wifi_station_set_enterprise_identity((uint8*)username, strlen(username));
+    wifi_station_set_enterprise_username((uint8*)username, strlen(username));
+    wifi_station_set_enterprise_password((uint8*)password, strlen(password));
+    wifi_station_connect();
+  // WPA2 Connection ends here
+  delay(500);
+  // Wait for connection AND IP address from DHCP
+  Serial.println();
+  Serial.println("Waiting for connection and IP Address from DHCP");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(2000);
     Serial.print(".");
   }
   Serial.println("");
-  Serial.print("Connected to WiFi network with IP Address: ");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
- 
-  Serial.println("Timer set to 5 seconds (timerDelay variable), it will take 5 seconds before publishing the first reading.");
+}
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  setupWiFi();
 }
 
 void loop() {
@@ -63,9 +92,14 @@ void loop() {
         
       // Free resources
       http.end();
+      if (httpResponseCode < 0) {
+        Serial.println("Error in response code");
+        setupWiFi();
+      }
     }
     else {
       Serial.println("WiFi Disconnected");
+      setupWiFi();
     }
     lastTime = millis();
   }
