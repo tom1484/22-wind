@@ -1,0 +1,17 @@
+.history {
+    transition: opacity 0 5s;
+    opacity: 1;
+    background-color: #ecf2f5d9;
+}
+.history.hide {
+    opacity: 0;
+    pointer-events:none;
+}
+
+.rank {
+    border-radius: 5rem;
+    transition: all .3s linear;
+}
+.rank:hover{
+    background-color: #ecf2f5d9;
+}

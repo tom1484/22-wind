@@ -1,1 +1,0 @@
-node app/app.js

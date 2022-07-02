@@ -1,2 +1,4 @@
-node app/load.js
-node app/reset.js
+cd app/utilities
+
+node ./load.js
+node ./reset.js

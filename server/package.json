@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "nodemon app/app.js"
+    "start": "nodemon app/app.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,8 +16,8 @@
     "readline": "^1.3.0"
   },
   "events": {
-    "restart": "kill-port 1484",
-    "crash": "kill-port 1484"
+    "restart": "kill-port 9487",
+    "crash": "kill-port 9487"
   },
   "delay": "1500"
 }
